@@ -1,0 +1,55 @@
+name: pokemon_flutter
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_native_splash: ^2.2.4
+  cupertino_icons: ^1.0.2
+  shared_preferences: ^2.0.13
+  provider: ^6.0.2
+  http: ^0.13.4
+  cached_network_image: ^3.2.1
+  sqflite:
+  path:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^1.0.0
+
+  flutter_launcher_icons: ^0.9.2
+
+flutter:
+
+  uses-material-design: true
+  fonts:
+    - family: PokeGoTypes
+      fonts:
+        - asset: assets/fonts/PokeGOTypes.ttf
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/monsterball.png"
+
+flutter_native_splash:
+  image: "assets/icon/monsterball.png"
+  color: "#ffebee"
+  color_dark: "#e57373"
+  fullscreen: true
+
+  android_12:
+    image: "lib/assets/icon/monsterball.png"
+    color: "#ffebee"
+    color_dark: "#e57373"
+
