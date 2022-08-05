@@ -16,6 +16,7 @@ class PokeList extends StatefulWidget {
 
 class _PokeListState extends State<PokeList> {
   static const int pageSize = 30;
+  static const double _scrollThreshold = 0.8;
   int _currentPage = 1;
   bool isFavoriteMode = false;
   bool isGridMode = false;
@@ -61,6 +62,17 @@ class _PokeListState extends State<PokeList> {
     setState(() => isGridMode = !currentMode);
   }
 
+  Widget loadScroll({required Widget child, required void Function(double scrollPosition) load}) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        final scrollPosition = scrollInfo.metrics.pixels / scrollInfo.metrics.maxScrollExtent;
+        load(scrollPosition);
+        return false;
+      },
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<FavoriteNotifier>(
@@ -79,53 +91,67 @@ class _PokeListState extends State<PokeList> {
                   return const Text("no data");
                 } else {
                   if (isGridMode) {
-                    return GridView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                      ),
-                      itemCount: itemCount(_currentPage, favs.favs.length) + 1,
-                      itemBuilder: (context, index) {
-                        if (index == itemCount(_currentPage, favs.favs.length)) {
-                          return Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: OutlinedButton(
-                              child: const Text('more'),
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                    return loadScroll(
+                      child: GridView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                        ),
+                        itemCount: itemCount(_currentPage, favs.favs.length) + 1,
+                        itemBuilder: (context, index) {
+                          if (index == itemCount(_currentPage, favs.favs.length)) {
+                            return Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: OutlinedButton(
+                                child: const Text('more'),
+                                style: OutlinedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
                                 ),
+                                onPressed: isLastPage(_currentPage, favs.favs.length)
+                                    ? null
+                                    : () => {
+                                          setState(() => _currentPage++),
+                                        },
                               ),
+                            );
+                          } else {
+                            return PokeGridItem(poke: pokes.byId(itemId(index, favs.favs)));
+                          }
+                        },
+                      ),
+                      load: (scrollPosition) {
+                        if (scrollPosition < _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                          setState(() => _currentPage++);
+                        }
+                      },
+                    );
+                  } else {
+                    return loadScroll(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                        itemCount: itemCount(_currentPage, favs.favs.length) + 1,
+                        itemBuilder: (context, index) {
+                          if (index == itemCount(_currentPage, favs.favs.length)) {
+                            return OutlinedButton(
                               onPressed: isLastPage(_currentPage, favs.favs.length)
                                   ? null
                                   : () => {
                                         setState(() => _currentPage++),
                                       },
-                            ),
-                          );
-                        } else {
-                          return PokeGridItem(poke: pokes.byId(itemId(index, favs.favs)));
-                        }
-                      },
-                    );
-                  } else {
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                      itemCount: itemCount(_currentPage, favs.favs.length) + 1,
-                      itemBuilder: (context, index) {
-                        if (index == itemCount(_currentPage, favs.favs.length)) {
-                          return OutlinedButton(
-                            onPressed: isLastPage(_currentPage, favs.favs.length)
-                                ? null
-                                : () => {
-                                      setState(() => _currentPage++),
-                                    },
-                            child: const Text('more'),
-                          );
-                        } else {
-                          return PokeListItem(
-                            poke: pokes.byId(itemId(index, favs.favs)),
-                          );
+                              child: const Text('more'),
+                            );
+                          } else {
+                            return PokeListItem(
+                              poke: pokes.byId(itemId(index, favs.favs)),
+                            );
+                          }
+                        },
+                      ),
+                      load: (scrollPosition) {
+                        if (scrollPosition < _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                          setState(() => _currentPage++);
                         }
                       },
                     );
