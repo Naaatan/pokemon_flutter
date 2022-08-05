@@ -16,7 +16,7 @@ class PokeList extends StatefulWidget {
 
 class _PokeListState extends State<PokeList> {
   static const int pageSize = 30;
-  static const double _scrollThreshold = 0.8;
+  static const double _scrollThreshold = 0.7;
   int _currentPage = 1;
   bool isFavoriteMode = false;
   bool isGridMode = false;
@@ -122,7 +122,7 @@ class _PokeListState extends State<PokeList> {
                         },
                       ),
                       load: (scrollPosition) {
-                        if (scrollPosition < _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                        if (scrollPosition > _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
                           setState(() => _currentPage++);
                         }
                       },
@@ -150,7 +150,7 @@ class _PokeListState extends State<PokeList> {
                         },
                       ),
                       load: (scrollPosition) {
-                        if (scrollPosition < _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                        if (scrollPosition > _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
                           setState(() => _currentPage++);
                         }
                       },
