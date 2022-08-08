@@ -62,11 +62,14 @@ class _PokeListState extends State<PokeList> {
     setState(() => isGridMode = !currentMode);
   }
 
-  Widget loadScroll({required Widget child, required void Function(double scrollPosition) load}) {
+  Widget loadScroll({required Widget child, required void Function() onLoad}) {
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
         final scrollPosition = scrollInfo.metrics.pixels / scrollInfo.metrics.maxScrollExtent;
-        load(scrollPosition);
+        if (scrollPosition > _scrollThreshold) {
+          // 閾値以上スクロールされたら関数実行
+          onLoad();
+        }
         return false;
       },
       child: child,
@@ -121,8 +124,8 @@ class _PokeListState extends State<PokeList> {
                           }
                         },
                       ),
-                      load: (scrollPosition) {
-                        if (scrollPosition > _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                      onLoad: () {
+                        if (!isLastPage(_currentPage, favs.favs.length)) {
                           setState(() => _currentPage++);
                         }
                       },
@@ -149,8 +152,8 @@ class _PokeListState extends State<PokeList> {
                           }
                         },
                       ),
-                      load: (scrollPosition) {
-                        if (scrollPosition > _scrollThreshold && !isLastPage(_currentPage, favs.favs.length)) {
+                      onLoad: () {
+                        if (!isLastPage(_currentPage, favs.favs.length)) {
                           setState(() => _currentPage++);
                         }
                       },
